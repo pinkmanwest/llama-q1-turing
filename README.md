@@ -22,8 +22,29 @@ Another run of the same command, one per build (stock 18.71, patched 54.32 tok/s
 - **Quantization** stores model weights with fewer bits so the model needs less memory. Common formats use 4-8 bits per weight.
 - **Q1_0 is 1-bit**: every weight is just **+1 or -1**, and each group of 128 weights shares one scale number. That is about 1.1 bits per weight.
 - So a 27-billion-parameter model is only **3.53 GB**, small enough for a 6 GB gaming GPU. At 4 bits the same model needs about 16 GB.
-- 1-bit models must be made for it: if you squeeze an ordinary model to 1 bit, it gets much worse. **Bonsai** models (by PrismML) are such models; Bonsai-27B is based on Qwen3.5-27B.
+- 1-bit models must be made for it: if you squeeze an ordinary model to 1 bit, it gets much worse. **Bonsai** models (by PrismML) are such models: [Bonsai-27B-gguf](https://huggingface.co/prism-ml/Bonsai-27B-gguf).
 - Stock llama.cpp runs Q1_0 slowly on older GPUs. This patch adds GPU code written for this format and for Turing cards.
+
+**Only the `Q1_0` format.** llama.cpp has several other low-bit formats with similar names. They use different math and get **no** speedup from this patch:
+
+| Format | What it is | This patch |
+|---|---|---|
+| `Q1_0` | binary: +1 / -1, 128 weights share one scale, 1.125 bits per weight | **yes** |
+| `TQ1_0`, `TQ2_0` | ternary: -1 / 0 / +1 (BitNet b1.58 style), 1.69 / 2.06 bits per weight | no |
+| `IQ1_S`, `IQ1_M` | codebook ("i-quants") formats, 1.56 / 1.75 bits per weight | no |
+
+To check a model: while loading it, `llama-server` prints a line `print_info: file type   = Q1_0`.
+
+### Bonsai-27B architecture
+
+Bonsai-27B uses the Qwen3.5 hybrid architecture (`qwen35` in llama.cpp):
+
+- 64 layers. Every 4th layer is full attention (16 layers); the other 48 are Gated DeltaNet layers, a kind of linear attention with a fixed-size recurrent state instead of a growing KV cache.
+- Hidden size 5120, feed-forward size 17408.
+- Attention: 24 query heads, 4 KV heads, head size 256.
+- 26.9 B parameters, 3.53 GB as Q1_0, context up to 262144 tokens.
+
+The matrix sizes 5120, 6144 and 17408 and the DeltaNet layers are why the patch is fastest on this model.
 
 ## Which models?
 
@@ -66,7 +87,7 @@ Requirements:
 Steps:
 
 1. Download `llama-q1-turing-win-cuda12.8-sm75.zip` from [Releases](https://github.com/pinkmanwest/llama-q1-turing/releases) and unzip it, for example to `C:\llama`.
-2. Download a `Q1_0` GGUF model, for example `Bonsai-27B-Q1_0.gguf` (3.53 GB) from Hugging Face (search "Bonsai gguf", publisher prism-ml). Put it anywhere, for example `C:\models`. The commands below use Bonsai-27B; put your model's file name instead.
+2. Download a `Q1_0` GGUF model, for example `Bonsai-27B-Q1_0.gguf` (3.53 GB) from [prism-ml/Bonsai-27B-gguf](https://huggingface.co/prism-ml/Bonsai-27B-gguf). Put it anywhere, for example `C:\models`. The commands below use Bonsai-27B; put your model's file name instead.
 3. Open the unzipped folder, click the address bar, type `cmd` and press Enter. A terminal opens in that folder.
 4. Start the server:
    ```
