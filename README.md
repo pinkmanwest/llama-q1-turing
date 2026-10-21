@@ -99,6 +99,14 @@ Steps:
    - `-c 8192` is the context length (how much text the model remembers). Lower it if you get an out-of-memory error.
 5. Wait until you see `server is listening on http://127.0.0.1:8080`, then open **http://127.0.0.1:8080** in your browser and chat.
 
+Full command I use (PowerShell, in the unzipped folder):
+
+```
+.\llama-server.exe -m C:\models\Bonsai-27B-Q1_0.gguf -ngl 99 -c 4096 -np 1 -fa on -ctk f16 -ctv f16 -t 4 -b 512 -ub 256 --jinja --alias bonsai --host 127.0.0.1 --port 8080
+```
+
+Keep the KV cache at `f16` (`-ctk f16 -ctv f16`, also the default): the fast attention kernel does not work with a quantized cache like `q8_0`.
+
 The server also has an OpenAI-compatible API at `http://127.0.0.1:8080/v1`, so you can connect apps like Open WebUI or SillyTavern to it.
 
 To measure the speed yourself:
