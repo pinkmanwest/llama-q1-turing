@@ -9,6 +9,10 @@ Unofficial CUDA patch for llama.cpp `a518119d3` (not affiliated with the llama.c
 
 Measured A-B-B-A in one session (`llama-bench -p 0 -n 512 -d 2048 -r 5 -ngl 99 -fa on -ctk f16 -ctv f16 -t 4`): stock 18.39 +- 0.65, patched 56.47 +- 0.67, patched 56.74 +- 0.18, stock 19.71 +- 0.05 tok/s.
 
+Another run of the same command, one per build (stock 18.71, patched 54.32 tok/s):
+
+![llama-bench: stock vs patched](bench.png)
+
 Correctness vs stock: WikiText-2 perplexity 18.1129 -> 18.1040, KL divergence 0.000195, same top token in 99.0% of positions, byte-identical greedy replies from llama-server.
 
 What changed: a new Q1_0 mat-vec kernel for Turing, a single-token attention kernel for this model, kernel fusions for the Gated DeltaNet layers, and fewer CPU-GPU syncs. The new kernels only turn on for Q1_0 on compute capability 7.5. Tested only on a GTX 1660 SUPER under Windows. Made with AI coding agents (Codex, Claude Code).
