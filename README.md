@@ -66,7 +66,7 @@ Requirements:
 Steps:
 
 1. Download `llama-q1-turing-win-cuda12.8-sm75.zip` from [Releases](https://github.com/pinkmanwest/llama-q1-turing/releases) and unzip it, for example to `C:\llama`.
-2. Download the model file `Bonsai-27B-Q1_0.gguf` (3.53 GB) from Hugging Face (search "Bonsai-27B gguf", publisher prism-ml). Put it anywhere, for example `C:\models`.
+2. Download a `Q1_0` GGUF model, for example `Bonsai-27B-Q1_0.gguf` (3.53 GB) from Hugging Face (search "Bonsai gguf", publisher prism-ml). Put it anywhere, for example `C:\models`. The commands below use Bonsai-27B; put your model's file name instead.
 3. Open the unzipped folder, click the address bar, type `cmd` and press Enter. A terminal opens in that folder.
 4. Start the server:
    ```
