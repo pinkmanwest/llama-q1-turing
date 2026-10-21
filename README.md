@@ -168,6 +168,7 @@ Needs Git, CMake, Visual Studio 2022 (C++ build tools) and CUDA Toolkit 12.x.
 git clone https://github.com/ggml-org/llama.cpp
 cd llama.cpp
 git checkout a518119d3
+curl -L -o q1-turing.patch https://raw.githubusercontent.com/pinkmanwest/llama-q1-turing/main/q1-turing.patch
 git apply q1-turing.patch
 cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75
 cmake --build build --config Release --target llama-server llama-bench
